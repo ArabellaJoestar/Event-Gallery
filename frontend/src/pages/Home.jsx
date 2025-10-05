@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, Loader2, Plus } from 'lucide-react';
-import { motion } from 'framer-motion';
 import EventCard from '../components/EventCard';
 import EventDetailModal from '../components/EventDetailModal';
-import { eventAPI } from '../services/api';
 import { Button } from '@/components/ui/button.jsx';
 
 // ... imports mantidos
@@ -77,7 +75,7 @@ const Home = () => {
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-white">
-                  Eventos Esperança Recife
+                  Eventos 
                 </h1>
                 <p className="text-sm text-white">
                   Fique por dentro de todos os eventos!
