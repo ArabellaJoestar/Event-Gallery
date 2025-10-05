@@ -1,20 +1,29 @@
 import { X, Calendar, Image as ImageIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button.jsx';
+import { eventAPI } from '../services/api';
+import ConfirmModal from '../components/ConfirmModal.jsx';
 import { useNavigate } from 'react-router-dom';
 
-const EventDetailModal = ({ event, isOpen, onClose }) => {
-    const navigate = useNavigate();
+const EventDetailModal = ({ event, isOpen, onClose, onEventDeleted }) => {
+  const navigate = useNavigate();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+
+  // Reseta o modal de confirmação quando o evento muda
+  useEffect(() => {
+    setIsConfirmOpen(false);
+  }, [event]);
+
 
   if (!event) return null;
 
   const API_BASE = 'http://localhost:3472';
 
-  // Formata a data para exibição
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
+    const [year, month, day] = dateString.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
     return date.toLocaleDateString('pt-BR', {
       day: '2-digit',
       month: 'long',
@@ -22,40 +31,16 @@ const EventDetailModal = ({ event, isOpen, onClose }) => {
     });
   };
 
-  // Garante que a imagem seja servida corretamente
   const getImageUrl = (relativePath) =>
     `${API_BASE}${relativePath.replace('.', '')}`;
 
-  // Backdrop variants
-  const backdropVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1 }
-  };
-
-  // Modal animation variants
-  const modalVariants = {
-    hidden: {
-      opacity: 0,
-      scale: 0.8,
-      y: 50
-    },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      y: 0,
-      transition: {
-        type: 'spring',
-        damping: 25,
-        stiffness: 300
-      }
-    },
-    exit: {
-      opacity: 0,
-      scale: 0.8,
-      y: 50,
-      transition: {
-        duration: 0.2
-      }
+  const deleteEvent = async () => {
+    try {
+      await eventAPI.deleteEvent(event.id);
+      onEventDeleted(); // chama o pai para atualizar lista e fechar modal
+    } catch (err) {
+      console.error('Não foi possível deletar evento:', err);
+      alert('Não foi possível deletar o evento');
     }
   };
 
@@ -63,32 +48,28 @@ const EventDetailModal = ({ event, isOpen, onClose }) => {
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          variants={backdropVariants}
-          initial="hidden"
-          animate="visible"
-          exit="hidden"
           className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
           onClick={onClose}
         >
           <motion.div
-            variants={modalVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            onClick={(e) => e.stopPropagation()}
             className="bg-card rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-border"
+            initial={{ opacity: 0, scale: 0.8, y: 50 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 50 }}
+            onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
             <div className="sticky top-0 bg-card/95 backdrop-blur-sm border-b border-border p-6 flex items-start justify-between z-10">
               <div className="flex-1 pr-4">
                 <h2 className="text-3xl font-bold text-foreground mb-2">
-                  {event.name.charAt(0).toUpperCase()+event.name.slice(1).toLowerCase()}
+                  {event.name.charAt(0).toUpperCase() + event.name.slice(1).toLowerCase()}
                 </h2>
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Calendar className="w-5 h-5" />
-                  <span className="text-base font-medium">
-                    {formatDate(event.date_event)}
-                  </span>
+                  <span className="text-base font-medium">{formatDate(event.date_event)}</span>
                 </div>
               </div>
               <button
@@ -141,9 +122,7 @@ const EventDetailModal = ({ event, isOpen, onClose }) => {
                         alt={`Miniatura ${index + 1}`}
                         className="w-full h-full object-cover"
                       />
-                      {selectedImageIndex === index && (
-                        <div className="absolute inset-0 bg-primary/20" />
-                      )}
+                      {selectedImageIndex === index && <div className="absolute inset-0 bg-primary/20" />}
                     </motion.button>
                   ))}
                 </div>
@@ -151,9 +130,7 @@ const EventDetailModal = ({ event, isOpen, onClose }) => {
 
               {/* Descrição */}
               <div className="space-y-3">
-                <h3 className="text-xl font-semibold text-foreground">
-                  Sobre o Evento
-                </h3>
+                <h3 className="text-xl font-semibold text-foreground">Sobre o Evento</h3>
                 <p className="text-muted-foreground leading-relaxed">
                   {event.description === '12null12' ? 'Sem descrição fornecida.' : event.description}
                 </p>
@@ -162,25 +139,32 @@ const EventDetailModal = ({ event, isOpen, onClose }) => {
               {/* Informações adicionais */}
               <div className="grid md:grid-cols-3 gap-4 pt-4 border-t border-border">
                 <div className="space-y-1">
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Data de Criação
-                  </p>
-                  <p className="text-base font-semibold text-foreground">
-                    {formatDate(event.date_creation)}
-                  </p>
+                  <p className="text-sm font-medium text-muted-foreground">Data de Criação</p>
+                  <p className="text-base font-semibold text-foreground">{event.date_creation}</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-sm font-medium text-muted-foreground">
-                    ID do Evento
-                  </p>
-                  <p className="text-base font-mono font-semibold text-foreground">
-                    {event.id}
-                  </p>
+                  <p className="text-sm font-medium text-muted-foreground">ID do Evento</p>
+                  <p className="text-base font-mono font-semibold text-foreground">{event.id}</p>
                 </div>
                 <div className="space-y-1 flex items-center">
-                  <Button className="text-sm font-medium text-white bg-yellow-500 hover:bg-yellow-600" onClick={() => navigate(`/edit/${event.id}`)}>
-                    Editar
+                  <Button
+                    className="text-sm font-medium text-white bg-yellow-500 hover:bg-yellow-600"
+                     onClick={() => navigate(`/edit/${event.id}`)}
+                  >Editar
                   </Button>
+                </div>
+                <div className="space-y-1 flex items-center">
+                  <Button
+                    className="text-sm font-medium text-white bg-red-400 hover:bg-red-600"
+                    onClick={() => setIsConfirmOpen(true)}
+                  >
+                    Excluir
+                  </Button>
+                  <ConfirmModal
+                    isOpen={isConfirmOpen}
+                    onClose={() => setIsConfirmOpen(false)}
+                    onConfirm={deleteEvent}
+                  />
                 </div>
               </div>
             </div>

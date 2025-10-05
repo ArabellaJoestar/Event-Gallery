@@ -51,9 +51,12 @@ const upload = multer({
   limits: { fileSize: 10 * 1024 * 1024 }
 });
 
+//CREATE
 app.post('/', upload.array('images', 10), async (req, res) => {
   try {
     let { name, description, principal_photo, date_event } = req.body;
+
+
 
     if (!name || !req.files || req.files.length === 0 || principal_photo === undefined || !date_event) {
       return res.status(400).json({
@@ -87,12 +90,14 @@ app.post('/', upload.array('images', 10), async (req, res) => {
     }
 
     const actual_date = new Date();
-    const date_creation = `${actual_date.getDate()}-${actual_date.getMonth() + 1}-${actual_date.getFullYear()}`;
-    const id_req = `REQ-${Date.now()}`;
 
-    if (!description || description.trim() === '') {
-      description = "12null12";
-    }
+    // Ano, mês e dia com padding
+    const year = actual_date.getFullYear();
+    const month = String(actual_date.getMonth() + 1).padStart(2, '0'); // Janeiro = 01
+    const day = String(actual_date.getDate()).padStart(2, '0');
+
+    const date_creation = `${year}-${month}-${day}`;
+    const id_req = `REQ-${Date.now()}`;
 
     const dateEventObj = new Date(date_event);
     if (isNaN(dateEventObj)) {
@@ -137,6 +142,7 @@ app.post('/', upload.array('images', 10), async (req, res) => {
   }
 });
 
+//READ geral
 app.get('/', (req, res) => {
   const SQL = `SELECT * FROM eventos WHERE date_deletion IS NULL`;
 
@@ -157,6 +163,7 @@ app.get('/', (req, res) => {
   });
 });
 
+//READ específico
 app.get('/:id', (req, res) => {
   const { id } = req.params;
   const SQL = `SELECT * FROM eventos WHERE id = ? AND date_deletion IS NULL`;
@@ -184,82 +191,105 @@ app.get('/:id', (req, res) => {
   });
 });
 
+//UPDATE
 app.put('/:id', upload.array('images', 10), (req, res) => {
   const { id } = req.params;
   let { name, description, principal_photo, date_event } = req.body;
+  let removedImages = req.body.removedImages;
+
+  // `removedImages` pode vir como string única, JSON ou múltiplos campos → normalizar:
+  if (typeof removedImages === 'string') {
+    try {
+      removedImages = JSON.parse(removedImages);
+    } catch {
+      removedImages = [removedImages];
+    }
+  }
+  if (!Array.isArray(removedImages)) {
+    removedImages = [];
+  }
 
   const selectSQL = `SELECT * FROM eventos WHERE id = ? AND date_deletion IS NULL`;
 
   db.get(selectSQL, [id], (err, row) => {
     if (err) {
       console.error('Erro ao buscar evento:', err.message);
-      return res.status(500).json({
-        error: 'Erro ao buscar evento'
-      });
+      return res.status(500).json({ error: 'Erro ao buscar evento' });
     }
 
     if (!row) {
-      return res.status(404).json({
-        error: 'Evento não encontrado'
-      });
+      return res.status(404).json({ error: 'Evento não encontrado' });
     }
 
-    let imagePaths = JSON.parse(row.images);
-
-    if (req.files && req.files.length > 0) {
-      imagePaths.forEach(imgPath => {
-        const fullPath = path.join(__dirname, imgPath);
-        if (fs.existsSync(fullPath)) {
-          fs.unlinkSync(fullPath);
-        }
-      });
-
-      imagePaths = req.files.map(file => `./assets/uploads/${file.filename}`);
+    // Pega imagens antigas do banco
+    let oldImages = [];
+    try {
+      oldImages = JSON.parse(row.images);
+    } catch {
+      oldImages = [];
     }
 
+    // Remove apenas as que o front-end informou
+    const keptImages = oldImages.filter(img => !removedImages.includes(img));
+
+    // Deleta fisicamente as removidas
+    removedImages.forEach(imgPath => {
+      const fullPath = path.join(process.cwd(), imgPath);
+      if (fs.existsSync(fullPath)) {
+        fs.unlinkSync(fullPath);
+      }
+    });
+
+    // Adiciona as novas imagens (se houver)
+    const newImages = (req.files || []).map(file => `./assets/uploads/${file.filename}`);
+
+    // Resultado final
+    const finalImages = [...keptImages, ...newImages];
+
+    // Atualiza os campos de texto
     const updatedName = name || row.name;
     const updatedDescription = description || row.description;
-    const updatedPrincipalPhoto = principal_photo !== undefined ? parseInt(principal_photo) : row.principal_photo;
+    const updatedPrincipalPhoto =
+      principal_photo !== undefined ? parseInt(principal_photo) : row.principal_photo;
+    const updatedDateEvent = date_event || row.date_event;
 
-    if (updatedPrincipalPhoto < 0 || updatedPrincipalPhoto >= imagePaths.length) {
-      return res.status(400).json({
-        error: {
-          message: 'Índice da foto principal inválido'
-        }
-      });
+    if (updatedPrincipalPhoto < 0 || updatedPrincipalPhoto >= finalImages.length) {
+      return res.status(400).json({ error: { message: 'Índice da foto principal inválido' } });
     }
 
-    const imagesJSON = JSON.stringify(imagePaths);
-
-    const updateSQL = `UPDATE eventos SET 
-      name = ?, 
-      images = ?, 
-      description = ?, 
-      principal_photo = ?,
-      date_event = ?
-      WHERE id = ?`;
-
-    const params = [updatedName, imagesJSON, updatedDescription, updatedPrincipalPhoto, date_event, id];
+    const updateSQL = `
+      UPDATE eventos 
+      SET name = ?, images = ?, description = ?, principal_photo = ?, date_event = ?
+      WHERE id = ?
+    `;
+    const params = [
+      updatedName,
+      JSON.stringify(finalImages),
+      updatedDescription,
+      updatedPrincipalPhoto,
+      updatedDateEvent,
+      id
+    ];
 
     db.run(updateSQL, params, function (err) {
       if (err) {
         console.error('Erro ao atualizar evento:', err.message);
-        return res.status(500).json({
-          error: 'Erro ao atualizar evento'
-        });
+        return res.status(500).json({ error: 'Erro ao atualizar evento' });
       }
 
       res.json({
         id,
         name: updatedName,
-        images: imagePaths,
+        images: finalImages,
         description: updatedDescription,
-        principal_photo: updatedPrincipalPhoto
+        principal_photo: updatedPrincipalPhoto,
+        date_event: updatedDateEvent
       });
     });
   });
 });
 
+//DELETE
 app.delete('/:id', (req, res) => {
   const { id } = req.params;
   const actual_date = new Date();

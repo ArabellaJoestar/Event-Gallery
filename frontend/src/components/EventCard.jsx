@@ -4,13 +4,16 @@ import { motion } from 'framer-motion';
 const EventCard = ({ event, onClick }) => {
   // Formata a data para exibição
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric'
-    });
-  };
+  const [year, month, day] = dateString.split('-').map(Number);
+  // Mês começa do 0 em JavaScript
+  const date = new Date(year, month - 1, day);
+  
+  return date.toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric'
+  });
+};
 
   // Obtém a imagem principal do evento
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, Loader2, Plus } from 'lucide-react';
+import { motion } from 'framer-motion';
 import EventCard from '../components/EventCard';
 import EventDetailModal from '../components/EventDetailModal';
 import { Button } from '@/components/ui/button.jsx';
@@ -75,7 +76,7 @@ const Home = () => {
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-white">
-                  Eventos 
+                  Eventos
                 </h1>
                 <p className="text-sm text-white">
                   Fique por dentro de todos os eventos!
@@ -84,15 +85,15 @@ const Home = () => {
             </div>
 
             {events.length === 0 ?
-            ""
-            
-            :
-            <Button onClick={() => navigate('/add')} className="flex items-center gap-2">
-              <Plus className="w-5 h-5" />
-              <span className="hidden sm:inline">Adicionar Evento</span>
-            </Button>
+              ""
+
+              :
+              <Button onClick={() => navigate('/add')} className="flex items-center gap-2">
+                <Plus className="w-5 h-5" />
+                <span className="hidden sm:inline">Adicionar Evento</span>
+              </Button>
             }
-            
+
           </div>
         </div>
       </header>
@@ -132,6 +133,10 @@ const Home = () => {
         event={selectedEvent}
         isOpen={isModalOpen}
         onClose={handleCloseModal}
+        onEventDeleted={() => {
+          setEvents((prev) => prev.filter((e) => e.id !== selectedEvent.id));
+          handleCloseModal();
+        }}
       />
 
     </div>

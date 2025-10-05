@@ -17,6 +17,7 @@ const AddEventForm = ({ onSubmit, onCancel }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
     setFormData(prev => ({
       ...prev,
       [name]: value
@@ -58,12 +59,13 @@ const AddEventForm = ({ onSubmit, onCancel }) => {
       alert('Por favor, preencha todos os campos obrigatórios e adicione pelo menos uma imagem.');
       return;
     }
+    
 
     setIsSubmitting(true);
 
     try {
       const data = new FormData();
-
+          console.log(formData.date_event)
       // Campos texto
       data.append('name', formData.name);
       data.append('description', formData.description || '');

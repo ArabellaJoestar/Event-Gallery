@@ -33,7 +33,7 @@ export const eventAPI = {
     return await response.json();
   },
 
-  // UPDATE - Atualizar evento (supondo JSON)
+  // UPDATE - Atualizar evento (usa FormData, pois pode conteri magens)
   async updateEvent(id, updateData) {
     const response = await fetch(`${API_URL}/${id}`, {
       method: 'PUT',
