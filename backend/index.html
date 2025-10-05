@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Enviar Imagens</title>
+</head>
+<body>
+  <h2>Formulário de Evento</h2>
+  <form id="eventoForm">
+    <label>Nome: <input type="text" name="name" required></label><br><br>
+    <label>Descrição: <textarea name="description"></textarea></label><br><br>
+    <label>Data do Evento: <input type="date" name="date_event" required></label><br><br>
+    <label>Imagens: <input type="file" name="images" multiple accept="image/*" required></label><br><br>
+    <label>Foto Principal (índice): <input type="number" name="principal_photo" value="0" required></label><br><br>
+    <button type="submit">Enviar</button>
+  </form>
+
+  <script>
+    document.getElementById('eventoForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const form = e.target;
+      const formData = new FormData(form);
+
+      const files = form.querySelector('input[name="images"]').files;
+      for (let i = 0; i < files.length; i++) {
+        formData.append('images', files[i]);
+      }
+
+      try {
+        const response = await fetch('http://localhost:3472/', {
+          method: 'POST',
+          body: formData
+        });
+
+        const result = await response.json();
+        console.log('Resposta do servidor:', result);
+        alert('Evento enviado com sucesso!');
+      } catch (error) {
+        console.error('Erro ao enviar:', error);
+        alert('Erro ao enviar evento.');
+      }
+    });
+  </script>
+</body>
+</html>
