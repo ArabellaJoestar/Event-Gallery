@@ -5,6 +5,13 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import cors from 'cors';
 import db from './database.js';
+import jwt from 'jsonwebtoken';
+import authenticate from './middlewares/auth.js'
+
+const JWT_SECRET = 'maxmin093711059827'
+const ADMIN_USER = 'admdevents'
+const ADMIN_PASS = '123456'
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -51,8 +58,8 @@ const upload = multer({
   limits: { fileSize: 10 * 1024 * 1024 }
 });
 
-//CREATE
-app.post('/', upload.array('images', 10), async (req, res) => {
+//CREATE de eventos
+app.post('/', authenticate, upload.array('images', 10), async (req, res) => {
   try {
     let { name, description, principal_photo, date_event } = req.body;
 
@@ -142,6 +149,18 @@ app.post('/', upload.array('images', 10), async (req, res) => {
   }
 });
 
+//POST checagem de login adm
+app.post('/login', (req, res) => {
+  const { username, password } = req.body;
+
+  if (username === ADMIN_USER && password === ADMIN_PASS) {
+    const token = jwt.sign({ role: 'admin' }, JWT_SECRET, { expiresIn: '8h' });
+    return res.json({ token });
+  }
+
+  return res.status(401).json({ message: 'Credenciais inválidas' });
+});
+
 //READ geral
 app.get('/', (req, res) => {
   const SQL = `SELECT * FROM eventos WHERE date_deletion IS NULL`;
@@ -192,7 +211,8 @@ app.get('/:id', (req, res) => {
 });
 
 //UPDATE
-app.put('/:id', upload.array('images', 10), (req, res) => {
+app.put('/:id', authenticate, upload.array('images', 10), (req, res) => {
+
   const { id } = req.params;
   let { name, description, principal_photo, date_event } = req.body;
   let removedImages = req.body.removedImages;
@@ -290,7 +310,7 @@ app.put('/:id', upload.array('images', 10), (req, res) => {
 });
 
 //DELETE
-app.delete('/:id', (req, res) => {
+app.delete('/:id', authenticate, (req, res) => {
   const { id } = req.params;
   const actual_date = new Date();
   const date_deletion = `${actual_date.getDate()}-${actual_date.getMonth() + 1}-${actual_date.getFullYear()}`;

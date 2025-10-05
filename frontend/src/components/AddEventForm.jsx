@@ -14,10 +14,22 @@ const AddEventForm = ({ onSubmit, onCancel }) => {
   const [imageFiles, setImageFiles] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [dateError, setDateError]= useState(true)
+
+  const formatDate = (dateString) => {
+    const [year, month, day] = dateString.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
+    return date
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-
+    if(name === 'date_event' && (formatDate(value).getFullYear() < new Date().getFullYear() - 100  || formatDate(value) > new Date())){
+      setDateError(true)
+    }
+    else{
+      setDateError(false)
+    }
     setFormData(prev => ({
       ...prev,
       [name]: value
@@ -129,6 +141,7 @@ const AddEventForm = ({ onSubmit, onCancel }) => {
             <Calendar className="w-4 h-4" />
             Data do Evento *
           </label>
+          {dateError ? <p className='text-xs text-red-600'>A Data fornecida é inválida</p> : ""}
           <input
             type="date"
             id="date_event"
@@ -249,7 +262,7 @@ const AddEventForm = ({ onSubmit, onCancel }) => {
         <div className="flex gap-3 pt-4">
           <Button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || dateError}
             className="flex-1"
           >
             {isSubmitting ? 'Criando...' : 'Criar Evento'}

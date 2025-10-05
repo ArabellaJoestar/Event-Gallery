@@ -14,6 +14,20 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAuth, setIsAuth] = useState(false)
+
+  useEffect(() => {
+    const handleStorageChange = () => setIsAuth(!!localStorage.getItem('token'));
+
+    // Atualiza inicialmente
+    handleStorageChange();
+
+    // Atualiza se localStorage mudar (em outra aba)
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
 
   const API_BASE = 'http://localhost:3472';
 
@@ -84,15 +98,13 @@ const Home = () => {
               </div>
             </div>
 
-            {events.length === 0 ?
-              ""
-
-              :
+            {(isAuth && events.length !== 0) && (
               <Button onClick={() => navigate('/add')} className="flex items-center gap-2">
                 <Plus className="w-5 h-5" />
                 <span className="hidden sm:inline">Adicionar Evento</span>
               </Button>
-            }
+            )}
+
 
           </div>
         </div>
@@ -108,10 +120,13 @@ const Home = () => {
           <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
             <Calendar className="w-16 h-16 text-secondary" />
             <p className="text-secondary text-lg">Nenhum evento encontrado</p>
-            <Button onClick={() => navigate('/add')} className="mt-4">
-              <Plus className="w-5 h-5 mr-2" />
-              Criar Primeiro Evento
-            </Button>
+            {isAuth && (
+              <Button onClick={() => navigate('/add')} className="mt-4 flex items-center gap-2">
+                <Plus className="w-5 h-5" />
+                Criar Primeiro Evento
+              </Button>
+            )}
+
           </div>
         ) : (
           <motion.div

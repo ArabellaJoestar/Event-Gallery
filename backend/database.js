@@ -25,6 +25,16 @@ const createTableSQL = `
   )
 `;
 
+const createAdminSQL = `
+CREATE TABLE IF NOT EXISTS admin (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+name TEXT NOT NULL,
+password TEXT NOT NULL
+)
+`
+
+
+
 db.run(createTableSQL, (err) => {
   if (err) {
     console.error('Erro ao criar tabela:', err.message);

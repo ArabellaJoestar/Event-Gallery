@@ -137,7 +137,7 @@ const EventDetailModal = ({ event, isOpen, onClose, onEventDeleted }) => {
               </div>
 
               {/* Informações adicionais */}
-              <div className="grid md:grid-cols-3 gap-4 pt-4 border-t border-border">
+              <div className="grid md:grid-cols-2 gap-4 pt-4 border-t border-border">
                 <div className="space-y-1">
                   <p className="text-sm font-medium text-muted-foreground">Data de Criação</p>
                   <p className="text-base font-semibold text-foreground">{event.date_creation}</p>
@@ -148,17 +148,18 @@ const EventDetailModal = ({ event, isOpen, onClose, onEventDeleted }) => {
                 </div>
                 <div className="space-y-1 flex items-center">
                   <Button
-                    className="text-sm font-medium text-white bg-yellow-500 hover:bg-yellow-600"
+                    className="text-sm font-medium text-white bg-yellow-500 hover:bg-yellow-600 h-10 p-3"
                      onClick={() => navigate(`/edit/${event.id}`)}
                   >Editar
                   </Button>
+
+                  
                 </div>
                 <div className="space-y-1 flex items-center">
                   <Button
-                    className="text-sm font-medium text-white bg-red-400 hover:bg-red-600"
+                    className="text-sm font-medium text-white bg-red-400 hover:bg-red-600 h-10 p-3"
                     onClick={() => setIsConfirmOpen(true)}
-                  >
-                    Excluir
+                  >Excluir
                   </Button>
                   <ConfirmModal
                     isOpen={isConfirmOpen}
