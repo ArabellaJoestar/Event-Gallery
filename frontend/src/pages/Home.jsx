@@ -105,6 +105,12 @@ const Home = () => {
               </Button>
             )}
 
+            {
+              !isAuth && <Button  onClick={() => navigate('/login')} className="flex items-center gap-2 bg-blue-800">
+                Login
+              </Button>
+            }
+
 
           </div>
         </div>

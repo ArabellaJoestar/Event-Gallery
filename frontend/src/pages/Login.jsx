@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Lock, User, Loader2 } from "lucide-react";
+import { Lock, User, Loader2, UserLock  } from "lucide-react";
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -36,11 +36,13 @@ export default function Login() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+    <div className="flex items-center justify-center min-h-screen bg-green-700">
       <form
         onSubmit={handleSubmit}
-        className="bg-white shadow-lg rounded-2xl p-8 w-full max-w-md"
+        className="bg-white opacity-70 hover:opacity-100 duration-300 shadow-lg rounded-2xl p-8 w-full max-w-md"
       >
+        <UserLock className="text-2xl font-bold text-center mb-4 w-full"
+        size={48}/>
         <h1 className="text-2xl font-bold text-center mb-6">Login Admin</h1>
 
         <div className="mb-4">

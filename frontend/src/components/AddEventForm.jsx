@@ -77,7 +77,6 @@ const AddEventForm = ({ onSubmit, onCancel }) => {
 
     try {
       const data = new FormData();
-          console.log(formData.date_event)
       // Campos texto
       data.append('name', formData.name);
       data.append('description', formData.description || '');

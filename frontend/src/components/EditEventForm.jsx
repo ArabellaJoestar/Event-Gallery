@@ -12,6 +12,7 @@ const EditEventForm = ({ onSubmit, onCancel }) => {
     principal_photo: 0
   });
 
+  const [dateError, setDateError]= useState(false)
   const [loading, setLoading] = useState(true);
   const API_BASE = 'http://localhost:3472';
   const id = window.location.pathname.split("/")[2];
@@ -50,7 +51,6 @@ const EditEventForm = ({ onSubmit, onCancel }) => {
       const month = dateEventArr[1]
       const day = dateEventArr[2]
       const formatedDate = `${year}-${month}-${day}`
-      console.log(dateEventArr)
 
       setFormData({
         name: event.name || '',
@@ -65,9 +65,21 @@ const EditEventForm = ({ onSubmit, onCancel }) => {
     }
   }, [event]);
 
+  const formatDate = (dateString) => {
+    const [year, month, day] = dateString.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
+    return date
+  };
+
   // Atualiza campos de texto
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    if(name === 'date_event' && (formatDate(value).getFullYear() < new Date().getFullYear() - 100  || formatDate(value) > new Date())){
+      setDateError(true)
+    }
+    else{
+      setDateError(false)
+    }
     setFormData(prev => ({
       ...prev,
       [name]: value
@@ -293,7 +305,7 @@ const EditEventForm = ({ onSubmit, onCancel }) => {
 
           {/* Botões */}
           <div className="flex gap-3 pt-4">
-            <Button type="submit" disabled={isSubmitting} className="flex-1">
+            <Button type="submit" disabled={isSubmitting || dateError} className="flex-1">
               {isSubmitting ? 'Salvando...' : 'Salvar alterações'}
             </Button>
             <Button

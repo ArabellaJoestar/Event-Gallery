@@ -3,7 +3,6 @@ const API_URL = 'http://localhost:3472';
 export const eventAPI = {
   async createEvent(formData) {
     const token = localStorage.getItem("token");
-    console.log(token)
     const response = await fetch(API_URL, {
       method: 'POST',
       body: formData,

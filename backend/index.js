@@ -174,7 +174,13 @@ app.get('/', (req, res) => {
     }
 
     const eventos = rows.map(evento => ({
-      ...evento,
+      id:`${evento.id}`,
+      name: `${evento.name}`,
+      images: evento.images,
+      description: `${evento.description}`,
+      principal_photo: `${evento.principal_photo}`,
+      date_event: `${evento.date_event}`,
+      date_creation: `${evento.date_creation}`,
       images: JSON.parse(evento.images)
     }));
 
@@ -206,7 +212,14 @@ app.get('/:id', (req, res) => {
       images: JSON.parse(row.images)
     };
 
-    res.json(evento);
+    const eventoEnvio = {
+      name: `${evento.name}`,
+      images: evento.images,
+      description: `${evento.description}`,
+      principal_photo: `${evento.principal_photo}`,
+      date_event: `${evento.date_event}`
+    }
+    res.json(eventoEnvio);
   });
 });
 

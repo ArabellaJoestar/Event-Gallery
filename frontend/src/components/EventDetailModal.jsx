@@ -16,6 +16,20 @@ const EventDetailModal = ({ event, isOpen, onClose, onEventDeleted }) => {
     setIsConfirmOpen(false);
   }, [event]);
 
+  const [isAuth, setIsAuth] = useState(false)
+
+  useEffect(() => {
+    const handleStorageChange = () => setIsAuth(!!localStorage.getItem('token'));
+
+    // Atualiza inicialmente
+    handleStorageChange();
+
+    // Atualiza se localStorage mudar (em outra aba)
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
 
   if (!event) return null;
 
@@ -137,7 +151,7 @@ const EventDetailModal = ({ event, isOpen, onClose, onEventDeleted }) => {
               </div>
 
               {/* Informações adicionais */}
-              <div className="grid md:grid-cols-2 gap-4 pt-4 border-t border-border">
+              {isAuth && <div className="grid md:grid-cols-2 gap-4 pt-4 border-t border-border">
                 <div className="space-y-1">
                   <p className="text-sm font-medium text-muted-foreground">Data de Criação</p>
                   <p className="text-base font-semibold text-foreground">{event.date_creation}</p>
@@ -167,7 +181,7 @@ const EventDetailModal = ({ event, isOpen, onClose, onEventDeleted }) => {
                     onConfirm={deleteEvent}
                   />
                 </div>
-              </div>
+              </div>}
             </div>
           </motion.div>
         </motion.div>
