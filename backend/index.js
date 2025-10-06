@@ -163,25 +163,31 @@ app.post('/login', (req, res) => {
 
 //READ geral
 app.get('/', (req, res) => {
-  const SQL = `SELECT * FROM eventos WHERE date_deletion IS NULL`;
+  const page = parseInt(req.query.page) || 1; // Página atual
+  const limit = parseInt(req.query.limit) || 10; // Quantos eventos por página
+  const offset = (page - 1) * limit;
 
-  db.all(SQL, [], (err, rows) => {
+  const SQL = `
+    SELECT * FROM eventos
+    WHERE date_deletion IS NULL
+    ORDER BY date_creation DESC
+    LIMIT ? OFFSET ?
+  `;
+
+  db.all(SQL, [limit, offset], (err, rows) => {
     if (err) {
-      console.error('Erro no select dos dados:', err.message);
-      return res.status(500).json({
-        error: 'Erro ao buscar eventos'
-      });
+      console.error('Erro ao buscar eventos:', err.message);
+      return res.status(500).json({ error: 'Erro ao buscar eventos' });
     }
 
     const eventos = rows.map(evento => ({
-      id:`${evento.id}`,
-      name: `${evento.name}`,
-      images: evento.images,
-      description: `${evento.description}`,
-      principal_photo: `${evento.principal_photo}`,
-      date_event: `${evento.date_event}`,
-      date_creation: `${evento.date_creation}`,
-      images: JSON.parse(evento.images)
+      id: evento.id,
+      name: evento.name,
+      images: JSON.parse(evento.images),
+      description: evento.description,
+      principal_photo: evento.principal_photo,
+      date_event: evento.date_event,
+      date_creation: evento.date_creation
     }));
 
     res.json(eventos);

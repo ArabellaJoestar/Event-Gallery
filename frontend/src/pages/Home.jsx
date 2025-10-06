@@ -81,12 +81,12 @@ const Home = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      <header className=" border-border sticky top-0 z-40 backdrop-blur-sm bg-green-800">
+      <header className=" border-border sticky top-0 z-40 backdrop-blur-sm bg-green-800 w-full">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-600 rounded-lg">
-                <Calendar className="w-6 h-6 text-primary-foreground" />
+              <div className="p-2 bg-black rounded-lg">
+                <Calendar className="w-10 h-10 text-primary-foreground"/>
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-white">

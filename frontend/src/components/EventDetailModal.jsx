@@ -61,14 +61,14 @@ const EventDetailModal = ({ event, isOpen, onClose, onEventDeleted }) => {
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div
+        <div
           className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
         >
-          <motion.div
+          <div
             className="bg-card rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-border"
             initial={{ opacity: 0, scale: 0.8, y: 50 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -183,8 +183,8 @@ const EventDetailModal = ({ event, isOpen, onClose, onEventDeleted }) => {
                 </div>
               </div>}
             </div>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       )}
     </AnimatePresence>
   );

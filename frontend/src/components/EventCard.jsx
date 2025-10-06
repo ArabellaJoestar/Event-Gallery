@@ -1,5 +1,4 @@
 import { Calendar } from 'lucide-react';
-import { motion } from 'framer-motion';
 
 const EventCard = ({ event, onClick }) => {
   // Formata a data para exibição
@@ -23,16 +22,13 @@ const EventCard = ({ event, onClick }) => {
     const mainImage = getImageUrl(event.images[event.principal_photo] || event.images[0]);
 
   return (
-    <motion.div
-      whileHover={{ y: -8, scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      transition={{ duration: 0.3, ease: 'easeOut' }}
+    <div
       onClick={() => onClick(event)}
-      className="group cursor-pointer bg-card rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border border-border "
+      className="group cursor-pointer bg-card rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border border-border"
     >
       {/* Imagem do Evento */}
       <div className="relative h-32 overflow-hidden bg-muted">
-        <motion.img
+        <img
           src={mainImage}
           alt={event.nome}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
@@ -60,15 +56,10 @@ const EventCard = ({ event, onClick }) => {
         {/* Indicador de mais detalhes */}
         <div className="mt-4 flex items-center gap-2 text-black text-sm font-semibold group-hover:opacity-100 transition-opacity duration-300">
           <span>Ver detalhes</span>
-          <motion.span
-            animate={{ x: [0, 4, 0] }}
-            transition={{ repeat: Infinity, duration: 1.5 }}
-          >
-            →
-          </motion.span>
+          <span>→</span>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 
