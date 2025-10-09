@@ -33,15 +33,5 @@ password TEXT NOT NULL
 )
 `
 
-
-
-db.run(createTableSQL, (err) => {
-  if (err) {
-    console.error('Erro ao criar tabela:', err.message);
-  } else {
-    console.log('Tabela "eventos" verificada/criada com sucesso');
-  }
-});
-
 // Exportar a conexão
 export default db;
