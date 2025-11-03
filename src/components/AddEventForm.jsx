@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button.jsx';
 import { groupAPI } from '@/services/api.js';
 
 const AddEventForm = ({ onSubmit, onCancel }) => {
+
+  //Setando states padrão do formulário
   const [formData, setFormData] = useState({
     name: '',
     date_event: '',
@@ -12,7 +14,6 @@ const AddEventForm = ({ onSubmit, onCancel }) => {
     principal_photo: 0,
     group_id: ''
   });
-
   const [imageFiles, setImageFiles] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
   const [documentFiles, setDocumentFiles] = useState([]);
@@ -21,7 +22,7 @@ const AddEventForm = ({ onSubmit, onCancel }) => {
   const [loadingGroups, setLoadingGroups] = useState(true);
   const [allGroups, setAllGroups] = useState([]);
 
-  // 🔹 Busca todos os grupos válidos (sem date_deletion)
+  // useEffect para busca de grupos válidos, os quais não tenham sido inclusos para deletion, ou seja onde date_deletion é null
   useEffect(() => {
     const fetchGroups = async () => {
       try {
@@ -37,11 +38,13 @@ const AddEventForm = ({ onSubmit, onCancel }) => {
     fetchGroups();
   }, []);
 
+  // Função auxiliar para formatação de data, pois a mesma é recebida no padrão UTC do MYSQL
   const formatDate = (dateString) => {
     const [year, month, day] = dateString.split('-').map(Number);
     return new Date(year, month - 1, day);
   };
 
+  // Função auxiliar para alterações em todos os inputs, onde alguns necessitam de métodos específicos para o envio dos dados do formulário
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
@@ -69,6 +72,7 @@ const AddEventForm = ({ onSubmit, onCancel }) => {
     }));
   };
 
+  // Funções auxiliares para gerenciar envio das imagens e arquivos
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
     files.forEach((file) => {
@@ -105,6 +109,7 @@ const AddEventForm = ({ onSubmit, onCancel }) => {
     setFormData((prev) => ({ ...prev, principal_photo: index }));
   };
 
+  // Função auxiliar para gerenciar envio do formulário para o backend
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -128,7 +133,6 @@ const AddEventForm = ({ onSubmit, onCancel }) => {
 
       await onSubmit(data);
 
-      // Resetar formulário
       setFormData({
         name: '',
         date_event: '',
@@ -155,6 +159,7 @@ const AddEventForm = ({ onSubmit, onCancel }) => {
       className="bg-card rounded-xl shadow-lg border border-border p-6 max-w-3xl mx-auto"
     >
       <form onSubmit={handleSubmit} className="space-y-6">
+
         {/* Nome do Evento */}
         <div className="space-y-2">
           <label htmlFor="name" className="flex items-center gap-2 text-sm font-semibold text-foreground">
@@ -313,7 +318,7 @@ const AddEventForm = ({ onSubmit, onCancel }) => {
             </label>
           </div>
 
-          {/* Lista de Documentos */}
+          {/* Preview da lista de Documentos */}
           {documentFiles.length > 0 && (
             <ul className="mt-3 space-y-2">
               {documentFiles.map((file, index) => (
@@ -364,7 +369,7 @@ const AddEventForm = ({ onSubmit, onCancel }) => {
           )}
         </div>
 
-        {/* Botões de Ação */}
+        {/* Botões de para criação do evento ou cancelar a criação do evento */}
         <div className="flex gap-3 pt-4">
           <Button type="submit" disabled={isSubmitting || dateError} className="flex-1">
             {isSubmitting ? 'Criando...' : 'Criar Evento'}

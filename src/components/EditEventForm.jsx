@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button.jsx';
 import { groupAPI } from '@/services/api.js';
 
 const EditEventForm = ({ onSubmit, onCancel }) => {
+
+  // Setando states padrão para o formulário
   const [event, setEvent] = useState();
   const [formData, setFormData] = useState({
     name: '',
@@ -15,8 +17,6 @@ const EditEventForm = ({ onSubmit, onCancel }) => {
   });
   const [dateError, setDateError]= useState(false)
   const [loading, setLoading] = useState(true);
-  const API_BASE = 'http://localhost:3472';
-  const id = window.location.pathname.split("/")[3];
   const [existingImages, setExistingImages] = useState([]);
   const [removedImages, setRemovedImages] = useState([]);
   const [imageFiles, setImageFiles] = useState([]);
@@ -28,6 +28,11 @@ const EditEventForm = ({ onSubmit, onCancel }) => {
   const [loadingGroups, setLoadingGroups] = useState(true);
   const [allGroups, setAllGroups] = useState([]);
 
+  // Variáveis estáticas para requisições posteriores
+  const API_BASE = 'http://localhost:3472';
+  const id = window.location.pathname.split("/")[3];
+
+  // useEffect para busca de grupos válidos, os quais não tenham sido inclusos para deletion, ou seja onde date_deletion é null
   useEffect(() => {
       const fetchGroups = async () => {
         try {
@@ -43,6 +48,8 @@ const EditEventForm = ({ onSubmit, onCancel }) => {
       fetchGroups();
     }, []);
 
+  /* Função auxiliar para formatação de data, para inclusão no input, pois o padrão recebido UTC do MYSQL não se encaixa diretamente no valor 
+  que o input aceita*/
   const formatDateNum = (dateToConvert) => {
     const date = new Date(dateToConvert)
     const formatedDate =  date.toLocaleDateString('sv-SE', {
@@ -53,10 +60,10 @@ const EditEventForm = ({ onSubmit, onCancel }) => {
     return formatedDate
   }
 
+  // Função auxiliar para busca do caminho da imagem
   const getImageUrl = (relativePath) => `${API_BASE}${relativePath.replace('.', '')}`;
 
-  
-
+  // Método para carregamento dos dados do evento
   const loadEvent = async () => {
     setLoading(true);
     try {
@@ -70,10 +77,12 @@ const EditEventForm = ({ onSubmit, onCancel }) => {
     }
   };
 
+  // useEffect para carregamento dos dados do evento
   useEffect(() => {
     loadEvent();
   }, []);
 
+  // useEffect para inclusão dos dados do evento recebidos nos campos do input
   useEffect(() => {
     if (event) {
       setFormData({
@@ -95,6 +104,7 @@ const EditEventForm = ({ onSubmit, onCancel }) => {
 
   const formatDate = (dateString) => {
     const [year, month, day] = dateString.split('-').map(Number);
+    console.log(`${year} ${month} ${day}`)
     return new Date(year, month - 1, day);
   };
 

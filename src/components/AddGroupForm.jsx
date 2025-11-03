@@ -6,22 +6,23 @@ import { groupAPI, eventAPI } from '../services/api.js';
 
 
 const AddGroupForm = ({ onCancel }) => {
+
+  // Setando states padrão para o grupo
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     events: []
   });
-
-  const [allEvents, setAllEvents] = useState([]); // lista vinda do backend
+  //State crítico, recebimento da lista de eventos para inclusão no grupo(Não mexer)
+  const [allEvents, setAllEvents] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loadingEvents, setLoadingEvents] = useState(true);
 
-  // === Buscar eventos disponíveis ===
+  // useEffect para busca de eventos válidos, os quais não tenham sido inclusos para deletion, ném estejam incluídos em outro grupo anteriormente
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const res = await eventAPI.getAllEvents() // busca todos os eventos
-        // filtra apenas eventos ativos e sem grupo (opcional)
+        const res = await eventAPI.getAllEvents() 
         const filtered = res.filter(e => !e.group_id && !e.date_deletion);
         setAllEvents(filtered);
       } catch (err) {
@@ -33,13 +34,13 @@ const AddGroupForm = ({ onCancel }) => {
     fetchEvents();
   }, []);
 
-  // === Alterar campos de texto ===
+  // Função auxiliar para alterações em todos os campos do formulário
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // === Selecionar/Deselecionar eventos ===
+  // Função auxiliar para seleção dos eventos
   const toggleEventSelection = (eventId) => {
     setFormData((prev) => {
       const alreadySelected = prev.events.includes(eventId);
@@ -50,7 +51,7 @@ const AddGroupForm = ({ onCancel }) => {
     });
   };
 
-  // === Envio do formulário ===
+  // Função auxiliar para gerenciar envio do formulário para o backend
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -83,6 +84,17 @@ const AddGroupForm = ({ onCancel }) => {
       setIsSubmitting(false);
     }
   };
+
+  const formatDateNum = (dateString) => {
+
+    const date = new Date(dateString)
+
+    return date.toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: '2-digit'
+    })
+  }
 
   return (
     <motion.div
@@ -152,7 +164,7 @@ const AddGroupForm = ({ onCancel }) => {
                     className="w-4 h-4 accent-primary"
                   />
                   <span className="text-sm text-foreground">
-                    {ev.name} — <span className="text-muted-foreground">{ev.date_event}</span>
+                    {ev.name} — <span className="text-muted-foreground">{formatDateNum(ev.date_event)}</span>
                   </span>
                 </label>
               ))}
