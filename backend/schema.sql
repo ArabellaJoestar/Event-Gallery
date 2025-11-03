@@ -1,3 +1,7 @@
+CREATE DATABASE IF NOT EXISTS events_database;
+
+USE events_database;
+
 CREATE TABLE IF NOT EXISTS event_groups (
   id INT PRIMARY KEY AUTO_INCREMENT,
   name TEXT NOT NULL,
