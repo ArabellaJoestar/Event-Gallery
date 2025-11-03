@@ -1,6 +1,0 @@
-node_modules/
-assets/uploads/
-*.log
-.env
-.DS_Store
-/backend/assets/uploads
