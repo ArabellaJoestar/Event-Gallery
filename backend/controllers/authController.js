@@ -10,7 +10,10 @@ export const login = (req, res) => {
   const { username, password } = req.body;
   if (username === ADMIN_USER && password === ADMIN_PASS) {
     // Adicionamos 'role: admin' ao payload
-    const token = jwt.sign({ role: 'admin' }, JWT_SECRET, { expiresIn: '12h' });
+    const token = jwt.sign(
+      { role: 'admin' }, 
+      JWT_SECRET
+    );
     return res.json({ token });
   }
   return res.status(401).json({ message: 'Credenciais inválidas' });
