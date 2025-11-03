@@ -1,6 +1,7 @@
 node_modules/
-assets/uploads/
+assets/
 *.log
 .env
-.DS_Store
+*.txt
 /backend/assets/uploads
+dist/
