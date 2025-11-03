@@ -91,7 +91,7 @@ DB_PASSWORD=sua_senha_mysql
 DB_NAME=qualidade
 
 # Segredo do JWT
-JWT_SECRET=maxmin093711059827
+JWT_SECRET=yourjwtsecret
 
 # Porta da Aplicação
 PORT=3472
@@ -130,8 +130,8 @@ Rotas protegidas requerem um **Bearer Token** no cabeçalho `Authorization`.
 * **Corpo (Body):**
     ```json
     {
-      "username": "qualidade",
-      "password": "Qualidade@0040@"
+      "username": "user",
+      "password": "user123"
     }
     ```
 * **Resposta (Sucesso 200):**
