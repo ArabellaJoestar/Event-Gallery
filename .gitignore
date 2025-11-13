@@ -1,6 +1,8 @@
 node_modules/
-assets/images/*
-assets/documents/*
+assets/images/**
+assets/documents/**
+!assets/images/.gitkeep
+!assets/documents/.gitkeep
 *.log
 .env
 *.txt
