@@ -102,12 +102,14 @@ const EditEventForm = ({ onSubmit, onCancel }) => {
     }
   }, [event]);
 
+  // Função auxiliar utilizada para verificação de validade da data do evento, ou seja verificar se o evento não ultrapassa os limites de data.
   const formatDate = (dateString) => {
     const [year, month, day] = dateString.split('-').map(Number);
     console.log(`${year} ${month} ${day}`)
     return new Date(year, month - 1, day);
   };
 
+  // Função auxiliar para gerenciar dados enviados nos inputs
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     if(name === 'date_event' && (formatDate(value).getFullYear() < new Date().getFullYear() - 100 || formatDate(value) > new Date())){
@@ -118,6 +120,7 @@ const EditEventForm = ({ onSubmit, onCancel }) => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  // Funções auxiliares para gerenciar envio das imagens e arquivos
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
     files.forEach(file => {
@@ -130,7 +133,6 @@ const EditEventForm = ({ onSubmit, onCancel }) => {
     });
   };
 
-  // --- NOVO: upload de documentos ---
   const handleDocumentUpload = (e) => {
     const files = Array.from(e.target.files);
     setDocumentFiles(prev => [...prev, ...files]);
@@ -170,6 +172,7 @@ const EditEventForm = ({ onSubmit, onCancel }) => {
     setFormData(prev => ({ ...prev, principal_photo: index }));
   };
 
+  // Função auxiliar para gerenciar envio do formulário para o backend
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);

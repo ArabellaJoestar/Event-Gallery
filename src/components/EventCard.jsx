@@ -14,16 +14,13 @@ const EventCard = ({ event, onClick }) => {
   };
 
   // Obtém a imagem principal do evento
-
   let mainImage
-
   const API_BASE = 'http://localhost:3472';
   if (event.images[0]) {
     const getImageUrl = (relativePath) =>
       `${API_BASE}${relativePath.replace('./', '/')}`;
     mainImage = getImageUrl(event.images[event.principal_photo] || event.images[0]);
   }
-
 
   return (
     <div

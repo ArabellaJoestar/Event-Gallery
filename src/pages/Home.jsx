@@ -131,7 +131,39 @@ const Home = () => {
   }
 };
 
+useEffect(() => {
+  const checkTokenValidity = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setIsAuth(false);
+      return;
+    }
 
+    try {
+      const res = await fetch("http://localhost:3472/login/verify-token", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+
+      if (data.valid) {
+        setIsAuth(true);
+      } else {
+        localStorage.removeItem("token");
+        setIsAuth(false);
+      }
+    } catch (error) {
+      console.error("Erro ao verificar token:", error);
+      localStorage.removeItem("token");
+      setIsAuth(false);
+    }
+  };
+
+  checkTokenValidity();
+}, []);
 
   return (
     <div className="flex flex-col min-h-screen bg-background">

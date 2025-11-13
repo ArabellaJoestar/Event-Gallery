@@ -1,4 +1,17 @@
-cd /d "C:\xampp\htdocs\event-gallery\event-gallery\backend"
+
+echo Checando existência da pasta "assets"
+if not exist "assets" (
+    mkdir assets
+    cd assets
+    mkdir documents
+    mkdir images
+    cd ../
+) else (
+    echo Pasta "assets" já existe, pulando esta etapa
+)
+
+
+
 
 :: Define o nome do arquivo de log com data e hora
 set "LOGFILE=%~dp0server_log_%date:~-4,4%-%date:~-7,2%-%date:~-10,2%_%time:~0,2%-%time:~3,2%.txt"

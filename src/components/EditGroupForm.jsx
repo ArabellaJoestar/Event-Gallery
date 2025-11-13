@@ -5,16 +5,21 @@ import { Button } from '@/components/ui/button.jsx';
 import { groupAPI, eventAPI } from '../services/api.js';
 
 const EditGroupForm = ({ groupId, onCancel }) => {
+
+  // Setando states padrão do
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     events: []
   });
-
+  
+   //State crítico, recebimento da lista de eventos para inclusão no grupo(Não mexer)
   const [allEvents, setAllEvents] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loadingEvents, setLoadingEvents] = useState(true);
 
+    /* Função auxiliar para formatação de data, para inclusão no input, pois o padrão recebido UTC do MYSQL não se encaixa diretamente no valor 
+  que o input aceita*/
   const formatDateNum = (dateString) => {
 
     const date = new Date(dateString)
@@ -26,7 +31,7 @@ const EditGroupForm = ({ groupId, onCancel }) => {
     })
   }
   
-
+  // useEffect para busca de eventos, os quais não tenham sido inclusos para deletion, ou seja onde date_deletion é null
   useEffect(() => {
     const fetchEvents = async () => {
       try {
@@ -42,6 +47,7 @@ const EditGroupForm = ({ groupId, onCancel }) => {
     fetchEvents();
   }, []);
 
+  // useEffect com método para carregamento dos dados do grupo
   useEffect(() => {
     const fetchGroup = async () => {
       try {
@@ -70,11 +76,14 @@ const EditGroupForm = ({ groupId, onCancel }) => {
     fetchGroup();
   }, [groupId]);
 
+  // Função auxiliar para acompanhar passagem de dados pelos inputs
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
+  
 
+  // Função auxiliar para gerenciar alteração de eventos inclusos
   const toggleEventSelection = (eventId) => {
     setFormData(prev => {
       const alreadySelected = prev.events.includes(eventId);
@@ -85,6 +94,7 @@ const EditGroupForm = ({ groupId, onCancel }) => {
     });
   };
 
+    // Função auxiliar para gerenciar envio do formulário para o backend
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.name) {

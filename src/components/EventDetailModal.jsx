@@ -8,16 +8,23 @@ import { useNavigate } from 'react-router-dom';
 import CopyLinkButton from '../components/ui/CopyLinkButton.jsx'
 
 const EventDetailModal = ({ event, isOpen, onClose, onEventDeleted }) => {
+
+  // Instanciando useNavigate para utilizações posteriores
   const navigate = useNavigate();
+
+  // Setando states padrão da modal
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
+  // useEffect para verificação se modal está aberta
   useEffect(() => {
     setIsConfirmOpen(false);
   }, [event]);
 
+  // state para verificação se usuário está autenticado, utilizado para visualização dos campos de edição ou exclusão do evento.
   const [isAuth, setIsAuth] = useState(false);
 
+  // useEffect para verificação do token de login
   useEffect(() => {
     const handleStorageChange = () => setIsAuth(!!localStorage.getItem('token'));
     handleStorageChange();
@@ -25,6 +32,7 @@ const EventDetailModal = ({ event, isOpen, onClose, onEventDeleted }) => {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
+  // Verifica se o evento passado para a modal existe, caso não exista não retorna nada
   if (!event) return null;
 
   const API_BASE = 'http://localhost:3472';
@@ -191,9 +199,12 @@ const EventDetailModal = ({ event, isOpen, onClose, onEventDeleted }) => {
                   </ul>
                 </div>
               )}
+
+              {/* Button para copiar link direto para o modal */}
               <div className="space-y-1 flex items-center">
-                <CopyLinkButton url={`http://localhost/event-gallery/evento/${event.id}`} />
+                <CopyLinkButton url={`http://localhost:5173/event-gallery/evento/${event.id}`} />
               </div>
+
               {/* Informações adicionais */}
               {isAuth && (
                 <div className="grid md:grid-cols-2 gap-4 pt-4 border-t border-border">

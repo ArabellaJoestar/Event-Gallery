@@ -7,17 +7,17 @@ import { Button } from '@/components/ui/button.jsx';
 import ConfirmModal from '../components/ConfirmModal.jsx';
 import { groupAPI } from '../services/api';
 
-export default function GroupCard({ group, onCardClick, onGroupDeleted, isAuth}) {
+export default function GroupCard({ group, onCardClick, onGroupDeleted, isAuth }) {
+
+    // Setando states padrão
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
     const [expanded, setExpanded] = useState(false);
+
+    // Instanciando useNavigate para uso posterior
     const navigate = useNavigate();
 
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
-    };
 
-    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-
+    // Função auxiliar para chamada do método deleteGroup responsável pela deleção de grupos
     const deleteGroup = async () => {
         try {
             await groupAPI.deleteGroup(group.id);
@@ -28,20 +28,19 @@ export default function GroupCard({ group, onCardClick, onGroupDeleted, isAuth})
         }
     };
 
-    const itemVariants = {
-        hidden: { opacity: 0, y: 20 },
-        visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } }
-    };
-
     return (
-        <motion.div variants={itemVariants} initial="hidden" animate="visible">
+        <motion.div variants={{
+            hidden: { opacity: 0, y: 20 },
+            visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } }
+        }} initial="hidden" animate="visible">
             <div className="p-4 rounded-lg bg-green-800 text-white">
-                <div className={`flex justify-between items-center mb-5 ${ group.events.length > 1 ? 'cursor-pointer' : ''}`}
-                onClick={() => group.events.length > 1 ? setExpanded(!expanded) : console.log('none')}>
+                {/* Caso o grupo tenha mais de um evento inclui uma aba para visualização dos demais */}
+                <div className={`flex justify-between items-center mb-5 ${group.events.length > 1 ? 'cursor-pointer' : ''}`}
+                    onClick={() => group.events.length > 1 &&setExpanded(!expanded)}>
                     <h2 className="text-xl font-bold">{group.name}</h2>
                     {group.events.length > 1 && (
                         <div className="flex items-center gap-1 text-gray-500">
-                            <span>{expanded && group.events.length > 1  ? 'Ocultar' : 'Mostrar mais'}</span>
+                            <span>{expanded && group.events.length > 1 ? 'Ocultar' : 'Mostrar mais'}</span>
                             {expanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
                         </div>
                     )}
@@ -49,7 +48,10 @@ export default function GroupCard({ group, onCardClick, onGroupDeleted, isAuth})
 
                 {expanded && group.events.length > 0 && (
                     <motion.div
-                        variants={containerVariants}
+                        variants={{
+                            hidden: { opacity: 0 },
+                            visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+                        }}
                         initial="hidden"
                         animate="visible"
                         className={`grid grid-cols-${group.events.length >= 3 ? '3' : '2'} gap-4 mt-2 mb-5`}
@@ -65,11 +67,11 @@ export default function GroupCard({ group, onCardClick, onGroupDeleted, isAuth})
                 )}
 
                 {!expanded && group.events.length >= 1 && (
-                    <EventCard key={group.events[0].id} event={group.events[0]} onClick={onCardClick}/>
+                    <EventCard key={group.events[0].id} event={group.events[0]} onClick={onCardClick} />
                 )
 
                 }
-                
+
 
 
 
