@@ -6,8 +6,9 @@ const router = express.Router();
 
 // Upload de evento
 const eventUpload = upload.fields([
-  { name: 'images', maxCount: 10 },
-  { name: 'documents', maxCount: 10 }
+  { name: 'images', maxCount: 20 },
+  { name: 'documents', maxCount: 20 },
+  { name: 'videos', maxCount: 5}
 ]);
 
 router.post('/', authenticate, eventUpload, EventController.createEvent);

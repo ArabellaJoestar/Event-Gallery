@@ -1,20 +1,36 @@
 import jwt from 'jsonwebtoken';
 import 'dotenv/config';
+import User from '../models/User.js'
 
-// Dados de admin
-const ADMIN_USER = 'qualidade';
-const ADMIN_PASS = 'Qualidade@0040@';
 const JWT_SECRET = process.env.JWT_SECRET;
 
-export const login = (req, res) => {
-  const { username, password } = req.body;
-  if (username === ADMIN_USER && password === ADMIN_PASS) {
-    // Adicionamos 'role: admin' ao payload
+export const login = async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    const user = await User.findByUsername(username)  
+    if (!user) {
+      return res.status(401).json({ message: 'Credenciais inválidas' });
+    }
+    console.log(password)
+    const isPasswordValid = await password === user.password;
+
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: 'Credenciais inválidas' });
+    }
+
     const token = jwt.sign(
-      { role: 'admin' }, 
+      { 
+        id: user.id,
+        role: user.role || 'admin'
+      }, 
       JWT_SECRET
     );
+
     return res.json({ token });
+
+  } catch (error) {
+    console.error('Erro no login:', error);
+    return res.status(500).json({ message: 'Erro interno do servidor' });
   }
-  return res.status(401).json({ message: 'Credenciais inválidas' });
 };

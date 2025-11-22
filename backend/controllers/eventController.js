@@ -23,13 +23,13 @@ const deleteFiles = (filePaths) => {
   });
 };
 
-
+//Método de criação de evento
 export const createEvent = async (req, res) => {
   try {
     const { name, description, principal_photo, date_event, group_id } = req.body;
     const files = req.files;
 
-    // --- Validação de Entrada ---
+    // Validação da entrada para impedir criação de eventos, os quais não sigam os padrões da normalidade do evento.
     if (!name || !files['images'] || files['images'].length === 0 || principal_photo === undefined || !date_event) {
       return res.status(400).json({ message: 'Campos obrigatórios ausentes: name, images, principal_photo, date_event.' });
     }
@@ -37,42 +37,40 @@ export const createEvent = async (req, res) => {
     if (!regex.test(name)) {
       return res.status(400).json({ message: 'Nome inválido. Evite caracteres especiais.' });
     }
+    // Se a conversão da data não for realizada corretamente invalida a criação do evento por data inválida
     const dateEventObj = new Date(date_event);
     if (isNaN(dateEventObj)) {
       return res.status(400).json({ message: 'Data do evento inválida.' });
     }
 
-    // --- Processamento de Arquivos ---
+    // Processa o envio dos arquivos, como images, documents e videos. Os Paths de cada documento são armazenados no SQL, enquanto os arquivos são guardados em pastas(ou volumes se caso for utilizada a conteinerização)
     const imagePaths = files['images'].map(f => `./assets/images/${f.filename}`);
     const documentPaths = (files['documents'] || []).map(d => `./assets/documents/${d.filename}`);
+    const videoPaths = (files['videos'] || []).map(v => `./assets/videos/${v.filename}`);
     
     const principalPhotoIndex = parseInt(principal_photo);
     if (isNaN(principalPhotoIndex) || principalPhotoIndex < 0 || principalPhotoIndex >= imagePaths.length) {
       return res.status(400).json({ message: 'Índice da foto principal inválido.' });
     }
 
-    // --- Chamada ao Model ---
-    // O Model agora cuida da transação (criar evento E atualizar grupo)
+    // Chamando model para criação do evento após validar todos os dados da criação
     const newEvent = await Event.create({
       name, description, principal_photo: principalPhotoIndex,
-      date_event, group_id, imagePaths, documentPaths
+      date_event, group_id, imagePaths, documentPaths, videoPaths
     });
 
     res.status(201).json(newEvent);
 
   } catch (error) {
     console.error('Erro ao criar evento:', error.message);
-    // TODO: Deletar arquivos salvos se o banco de dados falhar
     res.status(500).json({ message: 'Erro interno do servidor.' });
   }
 };
 
+//Método para aquisição de todos os eventos
 export const getAllEvents = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    
-    const events = await Event.findAll(page, limit);
+    const events = await Event.findAll()
     res.json(events);
     
   } catch (error) {
@@ -81,6 +79,7 @@ export const getAllEvents = async (req, res) => {
   }
 };
 
+//Método para aquisição de evento por ID
 export const getEventById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -97,49 +96,58 @@ export const getEventById = async (req, res) => {
   }
 };
 
+//Método para atualização do evento
 export const updateEvent = async (req, res) => {
   try {
     const { id } = req.params;
     const { name, description, principal_photo, date_event, group_id } = req.body;
     
-    // --- Lógica de arquivos (permanece no controller) ---
+    // Adquirindo dados de deleção de documentos
     const removedImages = normalize(req.body.removedImages);
     const removedDocuments = normalize(req.body.removedDocuments);
+    const removedVideos = normalize(req.body.removedVideos);
 
+    //Confirmando se evento antes da alteração ainda existe, ou se foi removido durante a requisição de atualização.
     const oldEvent = await Event.findById(id);
     if (!oldEvent) {
       return res.status(404).json({ error: 'Evento não encontrado' });
     }
 
-    // Deleta os arquivos removidos
+    //Deletando os arquivos passados na deleção determinada
     deleteFiles(removedImages);
     deleteFiles(removedDocuments);
+    deleteFiles(removedVideos);
     
-    // Filtra os arquivos antigos
+    //Filtrando documentos deletados para os documentos que vão permanecer
     const keptImages = (oldEvent.images || []).filter(i => !removedImages.includes(i));
     const keptDocuments = (oldEvent.documents || []).filter(d => !removedDocuments.includes(d));
+    const keptVideos = (oldEvent.videos || []).filter(v => !removedVideos.includes(v));
 
-    // Adiciona os novos
+    //Incluindo novos documentos a serem adicionados
     const newImages = (req.files?.['images'] || []).map(f => `./assets/images/${f.filename}`);
     const newDocuments = (req.files?.['documents'] || []).map(f => `./assets/documents/${f.filename}`);
+    const newVideos = (req.files?.['videos'] || []).map(f => `./assets/videos/${f.filename}`);
 
+    //Realizando o spread das imagens, as quais permaneceram no evento e quais foram adicionadas
     const finalImages = [...keptImages, ...newImages];
     const finalDocuments = [...keptDocuments, ...newDocuments];
+    const finalVideos = [...keptVideos, ...newVideos];
 
-    // Validação da foto principal
+    //Caso o novo índice para a foto principal seja inválido não permite atualização.
     const updatedPrincipalPhoto = principal_photo !== undefined ? parseInt(principal_photo) : oldEvent.principal_photo;
     if (finalImages.length > 0 && (updatedPrincipalPhoto < 0 || updatedPrincipalPhoto >= finalImages.length)) {
       return res.status(400).json({ message: 'Índice da foto principal inválido' });
     }
     
-    // --- Chamada ao Model ---
     const updatedEvent = await Event.update(id, {
-      name, description, 
+      name,
+      description,
       principal_photo: updatedPrincipalPhoto,
-      date_event, 
+      date_event,
       group_id,
-      finalImages, 
-      finalDocuments
+      finalImages,
+      finalDocuments,
+      finalVideos
     });
 
     res.json(updatedEvent);
@@ -150,6 +158,9 @@ export const updateEvent = async (req, res) => {
   }
 };
 
+//Método para deleção de eventos
+//Método não deleta por completo os eventos, o mesmo somente realiza um "soft delete" alterando alterando campo de date_deletion do evento 
+//Soft delete é realizado para evitar que exclusões acidentais de eventos levem a perda dos dados.
 export const deleteEvent = async (req, res) => {
   try {
     const { id } = req.params;

@@ -1,4 +1,3 @@
-// models/Event.js
 import pool from '../config/database.js';
 
 // Função auxiliar para datas (MySQL prefere YYYY-MM-DD)
@@ -7,7 +6,7 @@ const getISODate = () => new Date().toISOString().split('T')[0];
 export class Event {
 
   static async create(eventData) {
-    const { name, description, principal_photo, date_event, group_id, imagePaths, documentPaths } = eventData;
+    const { name, description, principal_photo, date_event, group_id, imagePaths, documentPaths, videoPaths } = eventData;
     
 
     const connection = await pool.getConnection();
@@ -19,11 +18,11 @@ export class Event {
       const id_req = `REQ-${Date.now()}`;
       
       const sqlEvent = `
-        INSERT INTO events (id_req, name, images, documents, description, principal_photo, date_creation, date_event, group_id)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO events (id_req, name, images, videos, documents, description, principal_photo, date_creation, date_event, group_id)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;
       const paramsEvent = [
-        id_req, name, JSON.stringify(imagePaths), JSON.stringify(documentPaths),
+        id_req, name, JSON.stringify(imagePaths), JSON.stringify(videoPaths), JSON.stringify(documentPaths),
         description, principal_photo, date_creation, date_event, group_id || null
       ];
 
@@ -51,7 +50,7 @@ export class Event {
       // Retorna o evento criado
       return { 
         id: newEventId, id_req, name, description, principal_photo, date_event, group_id,
-        images: imagePaths, documents: documentPaths, date_creation 
+        images: imagePaths, videos: videoPaths, documents: documentPaths, date_creation 
       };
 
     } catch (error) {
@@ -63,20 +62,16 @@ export class Event {
     }
   }
 
-  static async findAll(page = 1, limit = 10) {
-    const offset = (page - 1) * limit;
+  static async findAll() {
     const sql = `
       SELECT * FROM events
       WHERE date_deletion IS NULL
       ORDER BY date_creation DESC
-      LIMIT ? OFFSET ?
     `;
-    const [rows] = await pool.query(sql, [limit, offset]);
+    const [rows] = await pool.query(sql);
 
     return rows.map(e =>({
       ...e,
-      images: e.images || [],
-      documents: e.documents || []
     }));
   }
 
@@ -86,15 +81,16 @@ export class Event {
     const event = rows[0]
     
     if(event){
-      event.images = event.images || [];
-      event.documents = event.documents || []
+      event.images = JSON.parse(event.images || [])
+      event.videos = JSON.parse(event.videos || [])
+      event.documents = JSON.parse(event.documents || [])
     }
     return event
   }
 
   static async update(id, eventData) {
     // 1. Receber o group_id
-    const { name, description, principal_photo, date_event, group_id, finalImages, finalDocuments } = eventData;
+    const { name, description, principal_photo, date_event, group_id, finalImages, finalDocuments, finalVideos } = eventData;
 
     const connection = await pool.getConnection(); // Precisamos de transação
     try {
@@ -124,17 +120,18 @@ export class Event {
       const updatedGroupId = (group_id === undefined) ? oldGroupId : (group_id || null);
 
       const updatedImages = finalImages ? JSON.stringify(finalImages) : oldEvent.images;
+      const updatedVideos = finalVideos ? JSON.stringify(finalVideos) : oldEvent.videos;
       const updatedDocuments = finalDocuments ? JSON.stringify(finalDocuments) : oldEvent.documents;
 
       // 4. ATUALIZAR A TABELA 'events'
       const sqlUpdateEvent = `
         UPDATE events 
-        SET name = ?, images = ?, documents = ?, description = ?, 
+        SET name = ?, images = ?, videos = ?, documents = ?, description = ?, 
             principal_photo = ?, date_event = ?, group_id = ?
         WHERE id = ?
       `;
       const paramsEvent = [
-        updatedName, updatedImages, updatedDocuments, updatedDescription,
+        updatedName, updatedImages, updatedVideos, updatedDocuments, updatedDescription,
         updatedPrincipalPhoto, updatedDateEvent, updatedGroupId,
         id
       ];
@@ -149,7 +146,7 @@ export class Event {
           const sqlGetOldGroup = `SELECT events FROM event_groups WHERE id = ? FOR UPDATE`;
           const [oldGroupRows] = await connection.query(sqlGetOldGroup, [oldGroupId]);
           if (oldGroupRows.length > 0) {
-            const oldGroupEvents = oldGroupRows[0].events || [];
+            const oldGroupEvents = JSON.parse(oldGroupRows[0].events || []);
             const newOldGroupEvents = oldGroupEvents.filter(eId => eId !== eventId);
             await connection.query("UPDATE event_groups SET events = ? WHERE id = ?", [JSON.stringify(newOldGroupEvents), oldGroupId]);
           }
@@ -160,7 +157,7 @@ export class Event {
           const sqlGetNewGroup = `SELECT events FROM event_groups WHERE id = ? FOR UPDATE`;
           const [newGroupRows] = await connection.query(sqlGetNewGroup, [updatedGroupId]);
           if (newGroupRows.length > 0) {
-            const newGroupEvents = newGroupRows[0].events || [];
+            const newGroupEvents = JSON.parse(newGroupRows[0].events || []);
             if (!newGroupEvents.includes(eventId)) {
               newGroupEvents.push(eventId);
               await connection.query("UPDATE event_groups SET events = ? WHERE id = ?", [JSON.stringify(newGroupEvents), updatedGroupId]);
@@ -178,6 +175,7 @@ export class Event {
         principal_photo: updatedPrincipalPhoto, date_event: updatedDateEvent,
         group_id: updatedGroupId, // Retornar o novo group_id
         images: finalImages || oldEvent.images, 
+        videos: finalVideos || oldEvent.videos,
         documents: finalDocuments || oldEvent.documents
       };
 

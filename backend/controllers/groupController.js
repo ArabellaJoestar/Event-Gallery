@@ -1,7 +1,6 @@
-// controllers/groupController.js
 import { Group } from '../models/Group.js';
 
-// Função auxiliar (movida do seu index)
+// Normalizaçaõ dos dados
 const normalize = (data) => {
   if (!data) return [];
   if (typeof data === 'string') {
@@ -10,15 +9,17 @@ const normalize = (data) => {
   return Array.isArray(data) ? data : [];
 };
 
+//Método para criação de grupos
 export const createGroup = async (req, res) => {
   try {
     const { name, description, events } = req.body;
 
+    //Checagem simples se criação de grupo contém o parâmetro obrigatório de nome
     if (!name) {
       return res.status(400).json({ message: 'Campos obrigatórios ausentes: name' });
     }
 
-    // Sua validação regex
+    //Valida se o nome do grupo possui caracteres especiais
     const regex = /^[\p{L}\p{N} ]+$/u;
     if (!regex.test(name)) {
       return res.status(400).json({ message: 'Nome inválido. Evite caracteres especiais.' });
@@ -33,13 +34,11 @@ export const createGroup = async (req, res) => {
   }
 };
 
+//Método para aquisição de todos os grupos
 export const getAllGroups = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
     
-    // A lógica complexa de join/parse agora está no Model
-    const groups = await Group.findAll(page, limit);
+    const groups = await Group.findAll();
     res.json(groups);
 
   } catch (error) {
@@ -48,6 +47,7 @@ export const getAllGroups = async (req, res) => {
   }
 };
 
+//Método de aquisição de grupo específico por ID
 export const getGroupById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -64,12 +64,13 @@ export const getGroupById = async (req, res) => {
   }
 };
 
+//Método de atualização de grupo
 export const updateGroup = async (req, res) => {
   try {
     const { id } = req.params;
     let { name, description, events } = req.body;
 
-    // O Model agora cuida da transação complexa
+    //Atualiza o grupo com os dados recebidos
     const updatedGroup = await Group.update(id, { 
       name, 
       description, 
@@ -88,6 +89,7 @@ export const updateGroup = async (req, res) => {
   }
 };
 
+//Realiza um soft delete no grupo para evitar perda completa dos dados.
 export const deleteGroup = async (req, res) => {
   try {
     const { id } = req.params;

@@ -1,7 +1,6 @@
-// middlewares/auth.js
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'maxmin093711059827';
+const JWT_SECRET = process.env.JWT_SECRET;
 
 
 // Verifica se o token existe e decodifica

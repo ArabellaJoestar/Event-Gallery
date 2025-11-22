@@ -1,0 +1,63 @@
+services:
+  frontend:
+
+    depends_on:
+      - backend
+
+    build: ./frontend
+    
+    ports:
+      - 3100:80
+
+    networks:
+      - app-net
+
+  backend:
+
+    depends_on:
+      - db
+
+    build: ./backend
+
+    ports:
+      - 3472:3472
+
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      JWT_SECRET: ${JWT_SECRET}
+
+    volumes:
+      - ./backend:/app
+      - assets_data:/assets
+
+    networks:
+      - app-net
+
+  db:
+    image: mysql:8.0
+
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init_scripts:/docker-entrypoint-initdb.d
+    
+    networks:
+      - app-net
+
+volumes:
+  assets_data:
+    driver: local
+  mysql_data:
+    driver: local
+  
+networks:
+  app-net:
+    driver: bridge
