@@ -1,0 +1,13 @@
+/* Largura da scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #2D2D2A;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3F5E5A; 
+  border-radius: 10px;
+}
