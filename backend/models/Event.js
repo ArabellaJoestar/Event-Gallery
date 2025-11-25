@@ -69,7 +69,6 @@ export class Event {
       ORDER BY date_creation DESC
     `;
     const [rows] = await pool.query(sql);
-
     return rows.map(e =>({
       ...e,
     }));
@@ -80,11 +79,6 @@ export class Event {
     const [rows] = await pool.query(sql, [id]);
     const event = rows[0]
     
-    if(event){
-      event.images = JSON.parse(event.images || [])
-      event.videos = JSON.parse(event.videos || [])
-      event.documents = JSON.parse(event.documents || [])
-    }
     return event
   }
 

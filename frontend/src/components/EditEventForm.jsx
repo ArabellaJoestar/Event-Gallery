@@ -33,7 +33,7 @@ const EditEventForm = ({ onSubmit, onCancel }) => {
 
   // Variáveis estáticas para requisições posteriores
   const API_BASE = 'http://localhost:3472';
-  const id = window.location.pathname.split("/")[3];
+  const id = window.location.pathname.split("/")[2];
 
   // useEffect para busca de grupos válidos, os quais não tenham sido inclusos para deletion, ou seja onde date_deletion é null
   useEffect(() => {

@@ -31,7 +31,7 @@ export class Group {
 
   // parse events JSON
   for (const g of groups) {
-    const ids = JSON.parse(g.events || '[]');
+    const ids = g.events;
     if (ids.length === 0) {
       g.events = [];
       continue;
@@ -85,7 +85,7 @@ export class Group {
       await connection.query(updateGroupSQL, [updatedName, updatedDescription, updatedEventsJSON, id]);
 
       // Determina quais eventos mudaram
-      const oldEventIds = JSON.parse(oldGroup.events) || [];
+      const oldEventIds = oldGroup.events || [];
       const newEventIds = events || oldEventIds;
 
       const addedIds = newEventIds.filter(eId => !oldEventIds.includes(eId));
