@@ -1,7 +1,12 @@
 node_modules/
-!assets/images/*
-!assets/documents/*
-!assets/videos/*
+/backend/assets/*
+!/backend/assets/.gitkeep
+/backend/assets/images/*
+!/backend/assets/images/.gitkeep
+/backend/assets/documents/*
+!/backend/assets/documents/.gitkeep
+/backend/assets/videos/*
+!/backend/assets/videos/.gitkeep
 *.log
 .env
 *.txt
