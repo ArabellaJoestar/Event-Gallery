@@ -164,7 +164,7 @@ const Home = () => {
             )}
             {
               isAuth && (
-                <div className='grid grid-cols-2'>
+                <div className='grid grid-cols lg:grid-cols-2 md:grid-cols-2'>
                   <div className="flex flex-col items-center justify-center">
                     <Button onClick={handleLogout} className="flex items-center gap-2 bg-red-700 hover:bg-red-500">
                       <LogOut className="w-5 h-5" /> Logout
@@ -264,7 +264,7 @@ const Home = () => {
           ) : (
             <div className="
                             grid 
-                            grid-cols-2 md:grid-cols-3 lg:grid-cols-4
+                            grid-cols-2 md:grid-cols-2 lg:grid-cols-4
                             auto-rows-[360px]
                             grid-auto-flow-dense
                             gap-4

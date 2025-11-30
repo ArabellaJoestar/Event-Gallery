@@ -50,7 +50,7 @@ export default function CopyLinkButton({
           <button
             onClick={handleCopy}
             className={
-              `inline-flex items-center gap-2 px-3 py-1.5 rounded-md shadow-sm transition-all focus:outline-none focus:ring-2 text-white focus:ring-offset-2 focus:ring-primary ${className}`
+              `inline-flex justify-center items-center gap-2 px-3 py-1.5 rounded-md shadow-sm transition-all focus:outline-none focus:ring-2 text-white focus:ring-offset-2 focus:ring-primary text-center bg-white/20 hover:bg-white/30 ${className}`
             }
             aria-label={label}
             title={label}

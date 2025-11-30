@@ -12,7 +12,6 @@ export const login = async (req, res) => {
     if (!user) {
       return res.status(401).json({ message: 'Credenciais inválidas' });
     }
-    console.log(password)
     const isPasswordValid = await password === user.password;
 
     if (!isPasswordValid) {
