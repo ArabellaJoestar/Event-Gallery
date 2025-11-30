@@ -1,4 +1,4 @@
-# Event Gallery - Documentação Completa do Projeto
+# Event Gallery
 
 ## Visão Geral
 

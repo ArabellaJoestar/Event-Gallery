@@ -102,15 +102,13 @@ export class Group {
         const sqlRemove = `UPDATE events SET group_id = NULL WHERE id IN (?)`;
         await connection.query(sqlRemove, [removedIds]);
       }
-
-      // Se tudo deu certo, commita a transação
       await connection.commit();
       return { id, name: updatedName, description: updatedDescription, events: newEventIds };
 
     } catch (error) {
-      // Se algo deu errado, desfaz tudo
+      // Entrega o erro de volta para o controller e dá rollback na alteração
       await connection.rollback();
-      throw error; // Propaga o erro para o controller
+      throw error;
     } finally {
       connection.release(); // Libera a conexão de volta pro pool
     }
