@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus } from 'lucide-react';
 import { motion } from 'framer-motion';
-import AddGroupForm from '../components/AddGroupForm';
+import AddGroupForm from '../components/forms/AddGroupForm';
 import { eventAPI } from '../services/api';
 
 const AddGroup = () => {

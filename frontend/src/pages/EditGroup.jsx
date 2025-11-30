@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from 'react-router-dom'; // useParams adicionado
 import { ArrowLeft, Pencil } from 'lucide-react';
 import { motion } from 'framer-motion';
-import EditGroupForm from '../components/EditGroupForm';
+import EditGroupForm from '../components/forms/EditGroupForm';
 import { groupAPI } from '../services/api'; // ajustar para groupAPI
 
 const EditGroup = () => {

@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import EventCard from './EventCard';
+import EventCard from '../cards/EventCard';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button.jsx';
-import ConfirmModal from '../components/ConfirmModal.jsx';
-import { groupAPI } from '../services/api';
+import ConfirmModal from '../modals/ConfirmModal.jsx';
+import { groupAPI } from '../../services/api';
 
 export default function GroupCard({ group, onCardClick, onGroupDeleted, isAuth }) {
     const [expanded, setExpanded] = useState(false);

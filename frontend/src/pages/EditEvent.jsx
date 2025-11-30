@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Pencil } from 'lucide-react';
 import { motion } from 'framer-motion';
-import EditEventForm from '../components/EditEventForm';
+import EditEventForm from '../components/forms/EditEventForm';
 import { eventAPI } from '../services/api';
 
 const EditEvent = () => {

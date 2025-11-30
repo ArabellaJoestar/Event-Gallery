@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Calendar, Loader2, Plus, LogOut, LogIn } from 'lucide-react';
-import EventCard from '../components/EventCard';
-import EventDetailModal from '../components/EventDetailModal';
+import EventCard from '../components/cards/EventCard';
+import EventDetailModal from '../components/modals/EventDetailModal';
 import { Button } from '@/components/ui/button.jsx';
 import { groupAPI, eventAPI } from '../services/api.js';
-import GroupCard from '@/components/GroupCard'
+import GroupCard from '@/components/cards/GroupCard'
 import * as Switch from '@radix-ui/react-switch';
 import galleryIcon from '../../public/galeria-eventos-icon.png';
 

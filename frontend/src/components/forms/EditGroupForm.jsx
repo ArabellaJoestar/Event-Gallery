@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Type, ListChecks } from 'lucide-react';
 import { Button } from '@/components/ui/button.jsx';
-import { groupAPI, eventAPI } from '../services/api.js';
+import { groupAPI, eventAPI } from '../../services/api.js';
 
 const EditGroupForm = ({ groupId, onCancel }) => {
   // Setando states padrão do formulário

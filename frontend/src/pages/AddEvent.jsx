@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus } from 'lucide-react';
 import { motion } from 'framer-motion';
-import AddEventForm from '../components/AddEventForm';
+import AddEventForm from '../components/forms/AddEventForm';
 import { eventAPI } from '../services/api';
 
 const AddEvent = () => {

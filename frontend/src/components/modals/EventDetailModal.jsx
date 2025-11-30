@@ -2,10 +2,10 @@ import { X, Calendar, Image as ImageIcon, FileText } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button.jsx";
-import { eventAPI } from "../services/api";
-import ConfirmModal from "../components/ConfirmModal.jsx";
+import { eventAPI } from "../../services/api";
+import ConfirmModal from "../ConfirmModal.jsx";
 import { useNavigate } from "react-router-dom";
-import CopyLinkButton from "../components/ui/CopyLinkButton.jsx";
+import CopyLinkButton from "../ui/CopyLinkButton.jsx";
 
 // Detecta se arquivo é vídeo
 const isVideo = (path) =>
@@ -82,6 +82,7 @@ const EventDetailModal = ({
   const deleteEvent = async () => {
     try {
       await eventAPI.deleteEvent(event.id);
+
       onEventDeleted();
     } catch (err) {
       alert(`Não foi possível deletar: ${err}`);
@@ -291,7 +292,7 @@ const EventDetailModal = ({
                     <ConfirmModal
                       isOpen={isConfirmOpen}
                       onClose={() => setIsConfirmOpen(false)}
-                      onConfirm={deleteEvent}
+                      onConfirm={()=>{deleteEvent(); setIsConfirmOpen(false); }}
                     />
                   </div>
                 </div>

@@ -81,9 +81,9 @@ export class Event {
     const event = rows[0]
     
     if(event){
-      event.images = JSON.parse(event.images || [])
-      event.videos = JSON.parse(event.videos || [])
-      event.documents = JSON.parse(event.documents || [])
+      event.images = event.images || []
+      event.videos = event.videos || []
+      event.documents = event.documents || []
     }
     return event
   }
@@ -146,7 +146,7 @@ export class Event {
           const sqlGetOldGroup = `SELECT events FROM event_groups WHERE id = ? FOR UPDATE`;
           const [oldGroupRows] = await connection.query(sqlGetOldGroup, [oldGroupId]);
           if (oldGroupRows.length > 0) {
-            const oldGroupEvents = JSON.parse(oldGroupRows[0].events || []);
+            const oldGroupEvents = oldGroupRows[0].events || [];
             const newOldGroupEvents = oldGroupEvents.filter(eId => eId !== eventId);
             await connection.query("UPDATE event_groups SET events = ? WHERE id = ?", [JSON.stringify(newOldGroupEvents), oldGroupId]);
           }
@@ -157,7 +157,7 @@ export class Event {
           const sqlGetNewGroup = `SELECT events FROM event_groups WHERE id = ? FOR UPDATE`;
           const [newGroupRows] = await connection.query(sqlGetNewGroup, [updatedGroupId]);
           if (newGroupRows.length > 0) {
-            const newGroupEvents = JSON.parse(newGroupRows[0].events || []);
+            const newGroupEvents = newGroupRows[0].events || [];
             if (!newGroupEvents.includes(eventId)) {
               newGroupEvents.push(eventId);
               await connection.query("UPDATE event_groups SET events = ? WHERE id = ?", [JSON.stringify(newGroupEvents), updatedGroupId]);
